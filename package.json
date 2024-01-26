@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@farcaster/auth-kit": "^0.0.38",
+    "buffer": "^6.0.3",
     "gun": "^0.2020.1239",
     "leaflet": "^1.9.4",
     "react": "^18.2.0",
