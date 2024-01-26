@@ -4,6 +4,8 @@ import App from "./App.tsx";
 import { Buffer } from 'buffer';
 
 window.Buffer = Buffer;
+console.log('Buffer polyfill applied', Buffer);
+
 const root = document.getElementById("root");
 
 if (root) {

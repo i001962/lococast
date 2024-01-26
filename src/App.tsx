@@ -60,7 +60,7 @@ function MyMap() {
   const updateUserLocationInGun = (latitude: number, longitude:number) => {
     const userFid = (isAuthenticated && profile?.fid?.toString()) ?? 'anon';
     const userName = (isAuthenticated && profile?.displayName) ?? 'channel/degen';
-    const userIconUrl = (isAuthenticated && profile?.pfpUrl) ?? 'src/images/poker-token.svg';
+    const userIconUrl = (isAuthenticated && profile?.pfpUrl) ?? 'images/poker-token.svg';
 
     const newUserLocation = {
       fid: userFid,
@@ -107,14 +107,14 @@ function MyMap() {
           // Define user attributes based on authentication status
           const userFid = (isAuthenticated && profile?.fid?.toString()) ?? 'anon';
           const userName = (isAuthenticated && profile?.displayName) ?? 'channel/degen';
-          const userIconUrl = (isAuthenticated && profile?.pfpUrl) ?? 'src/images/poker-token.svg';
+          const userIconUrl = (isAuthenticated && profile?.pfpUrl) ?? 'images/poker-token.svg';
   
           const newUserLocation = {
             fid: userFid || 'anon',
             lat: latitude,
             lng: longitude,
             name: userName || 'channel/degen',
-            iconUrl: userIconUrl || 'src/images/poker-token.svg',
+            iconUrl: userIconUrl || 'images/poker-token.svg',
           };
   
           // Update location in Gun DB and state
