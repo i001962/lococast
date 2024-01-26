@@ -37,13 +37,24 @@ interface UserLocation {
 }
 
 function AuthenticationComponent() {
-  console.log("AuthenticationComponent");
   const { isAuthenticated } = useProfile();
 
   if (!isAuthenticated) {
     return (
-      <div style={{ textAlign: 'center', marginTop: '50px' }}>
-        <p>Please authenticate to continue:</p>
+      <div style={{ textAlign: 'center', marginTop: '50px', fontFamily: 'Arial, sans-serif' }}>
+        <p style={{ fontSize: '24px', fontWeight: '700', color: 'purple', marginBottom: '20px' }}>
+          &#9888; Your current location is about to be as public as a blockchain transaction.
+        </p>
+        <p style={{ fontSize: '18px', fontWeight: '600', marginBottom: '20px' }}>
+          Using this app might just turn your location into the next trending topic on Supercast.
+        </p>
+        <p style={{ fontSize: '24px', fontWeight: '700', color: 'purple', marginBottom: '20px' }}>
+          Last person in gets the $DEGEN avatar.
+        </p>
+        <p style={{ fontSize: '18px', fontWeight: '600', color: 'darkblue', marginBottom: '30px' }}>
+          What's this really all about? Experimenting with storing FC account attributes, eg current location, use P2P tech.
+          Thinking about a reward points system for watching the beautiful game live. PPOIDH 'Pics & Pins or it didn't happen'&#8253;
+        </p>
         <SignInButton />
       </div>
     );
@@ -60,7 +71,7 @@ function MyMap() {
   const updateUserLocationInGun = (latitude: number, longitude:number) => {
     const userFid = (isAuthenticated && profile?.fid?.toString()) ?? 'anon';
     const userName = (isAuthenticated && profile?.displayName) ?? 'channel/degen';
-    const userIconUrl = (isAuthenticated && profile?.pfpUrl) ?? 'images/poker-token.svg';
+    const userIconUrl = (isAuthenticated && profile?.pfpUrl) ?? 'images/degen.png';
 
     const newUserLocation = {
       fid: userFid,
@@ -107,18 +118,17 @@ function MyMap() {
           // Define user attributes based on authentication status
           const userFid = (isAuthenticated && profile?.fid?.toString()) ?? 'anon';
           const userName = (isAuthenticated && profile?.displayName) ?? 'channel/degen';
-          const userIconUrl = (isAuthenticated && profile?.pfpUrl) ?? 'images/poker-token.svg';
+          const userIconUrl = (isAuthenticated && profile?.pfpUrl) ?? 'images/degen.png';
   
           const newUserLocation = {
             fid: userFid || 'anon',
             lat: latitude,
             lng: longitude,
             name: userName || 'channel/degen',
-            iconUrl: userIconUrl || 'images/poker-token.svg',
+            iconUrl: userIconUrl || 'images/degen.png',
           };
   
           // Update location in Gun DB and state
-          console.log("User location:", newUserLocation);
           locations.get(newUserLocation.fid).put(newUserLocation);
           setUserLocation(newUserLocation);
         },
@@ -163,7 +173,7 @@ function MyMap() {
           {usersArray.map(loc => {
             const customIcon = new L.Icon({
               iconUrl: loc.iconUrl,
-              iconSize: [25, 25],
+              iconSize: [50, 50],
               iconAnchor: [12, 41],
               popupAnchor: [1, -34]
             });
