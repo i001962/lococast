@@ -1,7 +1,14 @@
+// Not currently used
 import { useMap } from 'react-leaflet';
 import { useEffect } from 'react';
+import { LatLngExpression } from 'leaflet';
 
-function CenterMapOnLocation({ location }) {
+interface CenterMapOnLocationProps {
+  location: LatLngExpression;
+}
+
+const CenterMapOnLocation: React.FC<CenterMapOnLocationProps> = ({ location }) => {
+ 
   const map = useMap();
   useEffect(() => {
     if (location) {

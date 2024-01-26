@@ -129,11 +129,11 @@ function MyMap() {
     };
   
     fetchLocationAndSet();
-  }, [isAuthenticated, userLocation]); // Re-run when isAuthenticated or profile changes
+  }, [isAuthenticated, userLocation, profile]); // Re-run when isAuthenticated or profile changes
   
   /* Get all pinned locations from GUNDB */
   useEffect(() => {
-    locations.map().on((user, id) => {
+    locations.map().on((user) => {
       if (user && user.fid) { 
         setUsers(prevUsers => {
           const newUsers = new Map(prevUsers);
@@ -176,7 +176,6 @@ function MyMap() {
                 </a>
               </div>
             );
-  
             return (
               <Marker key={loc.fid} position={[loc.lat, loc.lng]} icon={customIcon}>
                 <Popup>{popupContent}</Popup>
