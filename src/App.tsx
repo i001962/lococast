@@ -119,7 +119,8 @@ function MyMap() {
           const userFid = (isAuthenticated && profile?.fid?.toString()) ?? 'anon';
           const userName = (isAuthenticated && profile?.displayName) ?? 'channel/degen';
           const userIconUrl = (isAuthenticated && profile?.pfpUrl) ?? 'images/degen.png';
-  
+          // const verifications = (isAuthenticated && profile?.verifications) ?? [];
+          // console.log("verifications", verifications);
           const newUserLocation = {
             fid: userFid || 'anon',
             lat: latitude,
@@ -165,7 +166,7 @@ function MyMap() {
           </AuthKitProvider>
         </div>
       ) : (
-        <MapContainer center={[37.4603776, -122.273792]} zoom={13} style={{ height: '100vh', width: '100%' }}>
+          <MapContainer center={userLocation||[50.00, -100.00]} zoom={3} style={{ height: '100vh', width: '100%' }}>
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
