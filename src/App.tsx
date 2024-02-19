@@ -27,6 +27,7 @@ const gun = Gun({
   radisk: false, // Use Radisk to persist data
 }); 
 const locations = gun.get('d33m-locations-1').get("user");
+let authenticatedBefore: string;
 
 interface UserLocation {
   fid: string;
@@ -37,25 +38,42 @@ interface UserLocation {
 }
 
 function AuthenticationComponent() {
-  const { isAuthenticated } = useProfile();
+  const { isAuthenticated, profile } = useProfile();
+  const queryParams = new URLSearchParams(window.location.search);
+  const userFidFromQuery = queryParams.get('userFid');
+  const userIconUrlFromQuery = queryParams.get('userIconUrl');
+  const userNameFromQuery = queryParams.get('userName');
+  // Check for a previously authenticated flag in localStorage
+  useEffect(() => {
+    authenticatedBefore = localStorage.getItem('FCprofile1') as string;
+    if (authenticatedBefore) {
+      console.log("User was authenticated before.");
+    }
+  }, []); // Run once
+
+  // Save user's profile to localStorage upon authentication
+  useEffect(() => {
+    if (isAuthenticated && profile) {
+      localStorage.setItem('FCprofile1', JSON.stringify(profile));
+    }
+  }, [isAuthenticated, profile]);
 
   if (!isAuthenticated) {
     return (
       <div style={{ textAlign: 'center', marginTop: '50px', fontFamily: 'Arial, sans-serif' }}>
-        <p style={{ fontSize: '24px', fontWeight: '700', color: 'purple', marginBottom: '20px' }}>
-          &#9888; Your current location is about to be as public as a blockchain transaction.
-        </p>
-        <p style={{ fontSize: '18px', fontWeight: '600', marginBottom: '20px' }}>
-          Using this app might just turn your location into the next trending topic on Supercast.
-        </p>
-        <p style={{ fontSize: '24px', fontWeight: '700', color: 'purple', marginBottom: '20px' }}>
-          Last person in gets the $DEGEN avatar.
-        </p>
-        <p style={{ fontSize: '18px', fontWeight: '600', color: 'darkblue', marginBottom: '30px' }}>
-          What's this really all about? Experimenting with storing FC account attributes, eg current location, use P2P tech.
-          Thinking about a reward points system for watching the beautiful game live. PPOIDH 'Pics & Pins or it didn't happen'&#8253;
-        </p>
         <SignInButton />
+        <div>
+              {userFidFromQuery ? 
+               <>
+               <img src={userIconUrlFromQuery || 'images/degen.png'} alt={`User ${userFidFromQuery}`} style={{ width: '100px', height: '100px' }} />
+               {/* <img src={userIconUrlFromQuery} alt={`User ${userFidFromQuery}`} style={{ width: '100px', height: '100px' }} /> */}
+               <div>Welcome, {userNameFromQuery}. This device has not yet been authenticated.</div>
+               <div>Location services must be shared in order to participate.</div>
+             </>
+              :
+                "You haven't authenticated from this device yet."
+              }
+            </div>
       </div>
     );
   }
@@ -63,16 +81,18 @@ function AuthenticationComponent() {
   return <MyMap />;
 }
 
+
+
 function MyMap() {
   const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
   const [users, setUsers] = useState(new Map());
   const { isAuthenticated, profile } = useProfile();
   // Function to update location in Gun DB
   const updateUserLocationInGun = (latitude: number, longitude:number) => {
-    const userFid = (isAuthenticated && profile?.fid?.toString()) ?? 'anon';
-    const userName = (isAuthenticated && profile?.displayName) ?? 'channel/degen';
-    const userIconUrl = (isAuthenticated && profile?.pfpUrl) ?? 'images/degen.png';
-
+    const theProfile = JSON.parse(authenticatedBefore);
+    const userFid = (authenticatedBefore && theProfile?.fid?.toString()) ?? 'anon';
+    const userName = (authenticatedBefore && theProfile?.username) ?? 'channel/degen';
+    const userIconUrl = (authenticatedBefore && theProfile?.pfpUrl) ?? 'images/degen.png';
     const newUserLocation = {
       fid: userFid,
       lat: latitude,
@@ -85,23 +105,23 @@ function MyMap() {
     } else {console.log("fid is not a string")}
   };
 
-    // Fetch user location
-    useEffect(() => {
-      if (!navigator.geolocation) {
-        console.log("Geolocation is not supported by this browser.");
-        return;
+  // Fetch user location
+  useEffect(() => {
+    if (!navigator.geolocation) {
+      console.log("Geolocation is not supported by this browser.");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        updateUserLocationInGun(latitude, longitude);
+      },
+      (error) => {
+        console.error("Error getting location:", error);
       }
-  
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          updateUserLocationInGun(latitude, longitude);
-        },
-        (error) => {
-          console.error("Error getting location:", error);
-        }
-      );
-    }, []);
+    );
+  }, []);
   
   /* Get user's current location and pin it*/
   useEffect(() => {
@@ -116,11 +136,10 @@ function MyMap() {
           const { latitude, longitude } = position.coords;
         
           // Define user attributes based on authentication status
-          const userFid = (isAuthenticated && profile?.fid?.toString()) ?? 'anon';
-          const userName = (isAuthenticated && profile?.displayName) ?? 'channel/degen';
-          const userIconUrl = (isAuthenticated && profile?.pfpUrl) ?? 'images/degen.png';
-          // const verifications = (isAuthenticated && profile?.verifications) ?? [];
-          // console.log("verifications", verifications);
+          const theProfile = JSON.parse(authenticatedBefore);
+          const userFid = (authenticatedBefore && theProfile?.fid?.toString()) ?? 'anon';
+          const userName = (authenticatedBefore && theProfile?.username) ?? 'channel/degen';
+          const userIconUrl = (authenticatedBefore && theProfile?.pfpUrl) ?? 'images/degen.png';
           const newUserLocation = {
             fid: userFid || 'anon',
             lat: latitude,
@@ -159,7 +178,7 @@ function MyMap() {
   
   return (
     <>
-      {!isAuthenticated ? (
+      {(!isAuthenticated && !authenticatedBefore) ? (
         <div style={{ textAlign: 'center', marginTop: '50px' }}>
           <AuthKitProvider config={config}>
             <AuthenticationComponent />
@@ -182,8 +201,9 @@ function MyMap() {
               <div>
                 {loc.name}
                 <br />
-                <a href={`https://www.supercast.xyz/${loc.name}`} target="_blank" rel="noopener noreferrer">
-                  Visit {loc.name} on Supercast
+
+                <a href={`https://warpcast.com/~/compose?text=🚀+Find+your+Farcaster+friends+on+an+interactive+map.+Connect+with+FC%0A%0Ahttps%3A%2F%2Flococast.vercel.app+and+explore+like+its+2010+and+facebook+just+launched+check-ins!📍✨`} target="_blank" rel="noopener noreferrer">
+                  Share location on Warpcast
                 </a>
               </div>
             );
